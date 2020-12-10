@@ -23,3 +23,10 @@ start motion with
 
 stop with: 
 - $ sudo service motion stop
+
+## Next steps 
+
+- get screenshots of several timesteps of the recorderd video to make them ready for classification 
+- video/ screenshot gets classifed by tensorflow 
+- python API for using mattermost 
+- set up the raspberry pi at the balcony to produce first videos (using motion)
