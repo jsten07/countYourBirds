@@ -15,3 +15,11 @@ Steps to activate, when you have already created the environment like in the des
 ## Motion detection
 
 Use this description to start https://www.bouvet.no/bouvet-deler/utbrudd/building-a-motion-activated-security-camera-with-the-raspberry-pi-zero
+
+Have a look at motion.conf settings: e.g. decrease event_gap to 1 or 2
+
+start motion with 
+- $ sudo motion -c /etc/motion/motion.conf
+
+stop with: 
+- $ sudo service motion stop
