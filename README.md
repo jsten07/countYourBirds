@@ -33,3 +33,4 @@ stop with:
 - python API for using mattermost 
 - set up the raspberry pi at the balcony to produce first videos (using motion)
 - send an email or mattermost message if there was a bird recognition
+- think about infrared recognition because by camera it is very energy consuming 
