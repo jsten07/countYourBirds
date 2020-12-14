@@ -32,3 +32,4 @@ stop with:
 - video/ screenshot gets classifed by tensorflow 
 - python API for using mattermost 
 - set up the raspberry pi at the balcony to produce first videos (using motion)
+- send an email or mattermost message if there was a bird recognition
