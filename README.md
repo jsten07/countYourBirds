@@ -26,6 +26,8 @@ start motion with
 stop with: 
 - $ sudo service motion stop
 
+see http://raspberrypi:8080/ for motion and camera control
+
 ## Next steps 
 
 - get screenshots of several timesteps of the recorderd video to make them ready for classification 
