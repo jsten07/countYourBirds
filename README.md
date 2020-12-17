@@ -28,6 +28,10 @@ stop with:
 
 see http://raspberrypi:8080/ for motion and camera control
 
+settings:
+- trigger image recognition script with e.g.
+on_event_end  ..\script.py
+
 ## Next steps 
 - get screenshots of several timesteps of the recorderd video to make them ready for classification 
 - video/ screenshot gets classifed by tensorflow (in the motion.conf you can define a script which should be excecuted if there is a picture or video is saved)
