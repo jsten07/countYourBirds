@@ -36,5 +36,6 @@ on_event_end  ..\script.py
 - get screenshots of several timesteps of the recorderd video to make them ready for classification 
 - video/ screenshot gets classifed by tensorflow (in the motion.conf you can define a script which should be excecuted if there is a picture or video is saved)
 - send an email or mattermost message if there was a bird recognition (https://www.bouvet.no/bouvet-deler/utbrudd/building-a-motion-activated-security-camera-with-the-raspberry-pi-zero)
+- classify the birds by species 
 - set up the raspberry pi at the balcony to produce first videos (using motion) + define settings for usable images 
 - think about infrared recognition because by camera it is very energy consuming (https://randomnerdtutorials.com/raspberry-pi-motion-detector-photo-capture/)
