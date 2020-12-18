@@ -22,6 +22,8 @@ Have a look at motion.conf settings: e.g. decrease event_gap to 1 or 2
 
 start motion with 
 - $ sudo motion -c /etc/motion/motion.conf
+or 
+- $ motion -c ~/.motion/motion.conf
 
 stop with: 
 - $ sudo service motion stop
