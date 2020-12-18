@@ -19,6 +19,7 @@ $ python3 TFLite_detection_webcam.py --modeldir=Sample_TF_Lite_Model
 Use this description to start https://www.bouvet.no/bouvet-deler/utbrudd/building-a-motion-activated-security-camera-with-the-raspberry-pi-zero
 
 Have a look at motion.conf settings: e.g. decrease event_gap to 1 or 2
+Possible configuration settings can be found here: https://motion-project.github.io/4.3.1/motion_config.html
 
 start motion with 
 - $ sudo motion -c /etc/motion/motion.conf
