@@ -14,6 +14,17 @@ $ cd tflite1
 $ python3 TFLite_detection_webcam.py --modeldir=Sample_TF_Lite_Model
 ```
 
+## Run image recognition file
+1. Steps to activate, when you have already created the environment like in the description:
+```shell
+$ source tflite1-env/bin/activate
+$ cd tflite1
+$ python3 TFLite_detection_webcam.py --modeldir=Sample_TF_Lite_Model
+```
+2. Run folowing command add the name of your image at name.jpg
+```shell
+$ python TFLite_detection_image.py --modeldir=Sample_TF_Lite_Model --image name.jpg
+```
 ## Motion detection
 
 Use this description to start https://www.bouvet.no/bouvet-deler/utbrudd/building-a-motion-activated-security-camera-with-the-raspberry-pi-zero
