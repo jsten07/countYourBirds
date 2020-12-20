@@ -217,12 +217,12 @@ for image_path in images:
         text = MIMEText("New Bird detected")
         message.attach(text)
         im_data = open(IM_NAMEnew, "rb").read()
-        image = MIMEImage(im_data, name= IM_NAMEnew)
+        image = MIMEImage(im_data, name= filenameNew)
 
         # Add attachment to message and convert message to string
         message.attach(image)
         text = message.as_string()
-        print("E-Mail sent")
+        print("E-Mail send")
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, text)
