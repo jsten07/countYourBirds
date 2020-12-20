@@ -207,14 +207,17 @@ for image_path in images:
                         #server.login
 
     # All the results have been drawn on the image, now display the image
-    #cv2.imshow('Object detector', image)
+    cv2.imshow('Object detector', image)
     if(birdDetected == True):
-        cv2.imwrite(IM_NAME, image)
-        filename = IM_NAME # In same directory as script
+        headTail =  os.path.split(IM_NAME)
+        filenameNew = "processed_" + headTail[1]
+        IM_NAMEnew = os.path.join(headTail[0], filenameNew)
+        cv2.imwrite(IM_NAMEnew, image)
+         # In same directory as script
         text = MIMEText("New Bird detected")
         message.attach(text)
-        im_data = open(IM_NAME, "rb").read()
-        image = MIMEImage(im_data, name= IM_NAME)
+        im_data = open(IM_NAMEnew, "rb").read()
+        image = MIMEImage(im_data, name= IM_NAMEnew)
 
         # Add attachment to message and convert message to string
         message.attach(image)
