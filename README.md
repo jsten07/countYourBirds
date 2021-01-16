@@ -53,3 +53,7 @@ on_event_end  ..\script.py
 - classify the birds by species 
 - set up the raspberry pi at the balcony to produce first videos (using motion) + define settings for usable images 
 - think about infrared recognition because by camera it is very energy consuming (https://randomnerdtutorials.com/raspberry-pi-motion-detector-photo-capture/)
+
+### 16.01
+- send pictures with most confidence
+- upload pcitures and count to sensebox
