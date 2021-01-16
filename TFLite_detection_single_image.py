@@ -28,7 +28,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 
-subject = "BIRD Summary"
+subject = "New BIRD"
 sender_email = "birdscounting@gmail.com"
 receiver_email = ["nick.jakuschona@gmail.com" , "nick1212@gmx.de"]
 password= "countingBirds20"
@@ -155,112 +155,92 @@ floating_model = (input_details[0]['dtype'] == np.float32)
 input_mean = 127.5
 input_std = 127.5
 
-birdInOne = False
-birdImages=[]
-birdCountAll=0
-status = ""
+file = open("hello.txt", "r+")
+fl = file.readline()
 
+if(fl == "false"):
 # Loop over every image and perform detection
-for image_path in images:
+    for image_path in images:
 
-    # Load image and resize to expected shape [1xHxWx3]
-    image = cv2.imread(image_path)
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    imH, imW, _ = image.shape 
-    image_resized = cv2.resize(image_rgb, (width, height))
-    input_data = np.expand_dims(image_resized, axis=0)
-    birdDetected = False
-    # Normalize pixel values if using a floating model (i.e. if model is non-quantized)
-    if floating_model:
-        input_data = (np.float32(input_data) - input_mean) / input_std
+        # Load image and resize to expected shape [1xHxWx3]
+        image = cv2.imread(image_path)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        imH, imW, _ = image.shape 
+        image_resized = cv2.resize(image_rgb, (width, height))
+        input_data = np.expand_dims(image_resized, axis=0)
+        birdDetected = False
+        # Normalize pixel values if using a floating model (i.e. if model is non-quantized)
+        if floating_model:
+            input_data = (np.float32(input_data) - input_mean) / input_std
 
-    # Perform the actual detection by running the model with the image as input
-    interpreter.set_tensor(input_details[0]['index'],input_data)
-    interpreter.invoke()
+        # Perform the actual detection by running the model with the image as input
+        interpreter.set_tensor(input_details[0]['index'],input_data)
+        interpreter.invoke()
 
-    # Retrieve detection results
-    boxes = interpreter.get_tensor(output_details[0]['index'])[0] # Bounding box coordinates of detected objects
-    classes = interpreter.get_tensor(output_details[1]['index'])[0] # Class index of detected objects
-    scores = interpreter.get_tensor(output_details[2]['index'])[0] # Confidence of detected objects
-    #num = interpreter.get_tensor(output_details[3]['index'])[0]  # Total number of detected objects (inaccurate and not needed)
-    birdCount=0
-    # Loop over all detections and draw detection box if confidence is above minimum threshold
-    for i in range(len(scores)):
-        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
+        # Retrieve detection results
+        boxes = interpreter.get_tensor(output_details[0]['index'])[0] # Bounding box coordinates of detected objects
+        classes = interpreter.get_tensor(output_details[1]['index'])[0] # Class index of detected objects
+        scores = interpreter.get_tensor(output_details[2]['index'])[0] # Confidence of detected objects
+        #num = interpreter.get_tensor(output_details[3]['index'])[0]  # Total number of detected objects (inaccurate and not needed)
 
-            # Get bounding box coordinates and draw box
-            # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
-            ymin = int(max(1,(boxes[i][0] * imH)))
-            xmin = int(max(1,(boxes[i][1] * imW)))
-            ymax = int(min(imH,(boxes[i][2] * imH)))
-            xmax = int(min(imW,(boxes[i][3] * imW)))
+        # Loop over all detections and draw detection box if confidence is above minimum threshold
+        for i in range(len(scores)):
+            if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
+
+                # Get bounding box coordinates and draw box
+                # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
+                ymin = int(max(1,(boxes[i][0] * imH)))
+                xmin = int(max(1,(boxes[i][1] * imW)))
+                ymax = int(min(imH,(boxes[i][2] * imH)))
+                xmax = int(min(imW,(boxes[i][3] * imW)))
+                
+                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
+
+                # Draw label
+                object_name = labels[int(classes[i])] # Look up object name from "labels" array using class index
+                label = '%s: %d%%' % (object_name, int(scores[i]*100)) # Example: 'person: 72%'
+                labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2) # Get font size
+                label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
+                cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
+                cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
+                if(int(classes[i]) == 15):
+                    birdDetected = True
+                    print("Bird detected")
             
-            cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
+                        #with smtplib.SMTP_SSL("smtp.gmail.com", port, context = context) as server:
+                            #server.login
 
-            # Draw label
-            object_name = labels[int(classes[i])] # Look up object name from "labels" array using class index
-            label = '%s: %d%%' % (object_name, int(scores[i]*100)) # Example: 'person: 72%'
-            labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2) # Get font size
-            label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
-            cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
-            cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
-            if(int(classes[i]) == 15):
-                birdCount = birdCount + 1
-                birdDetected = True
-                birdInOne = True
-                print("Bird detected")
-    birdCountAll = max(birdCountAll, birdCount)
-        
-                    #with smtplib.SMTP_SSL("smtp.gmail.com", port, context = context) as server:
-                        #server.login
-
-    # All the results have been drawn on the image, now display the image
-    #cv2.imshow('Object detector', image)
-    if(birdDetected == True):
-        headTail =  os.path.split(image_path)
-        filenameNew = "processed_" + headTail[1]
-        IM_NAMEnew = os.path.join(headTail[0], filenameNew)
-        status = cv2.imwrite(IM_NAMEnew, image)
-        birdImages.append(IM_NAMEnew)
-         # In same directory as script
-             # Press any key to continue to next image, or press 'q' to quit
- 
-         
-if(birdInOne):
-        file = open("birds.txt", "r+")
-        fl = file.readline()
-        birds = int(fl)
-        birds = birds + birdCountAll
-        file.seek(0)
-        file.write(str(birds))
-        file.truncate()
-        file.close()
-        text = MIMEText(str(birdCountAll) + " new Bird(s) detected.\nTotal birds detected today: " + str(birds))
-        message.attach(text)
-        print(status)
-        for i in range(3):
-            number = np.random.randint(0, len(birdImages))
-            im_data = open(birdImages[number], "rb").read()
-            headTail =  os.path.split(birdImages[number])
+        # All the results have been drawn on the image, now display the image
+        #cv2.imshow('Object detector', image)
+        if(birdDetected == True):
+            headTail =  os.path.split(IM_NAME)
             filenameNew = "processed_" + headTail[1]
+            IM_NAMEnew = os.path.join(headTail[0], filenameNew)
+            cv2.imwrite(IM_NAMEnew, image)
+            file.seek(0)
+            file.write("true")
+            file.truncate()
+            file.close()
+             # In same directory as script
+            text = MIMEText("Hey, there is an new bird at your bird feeder!")
+            message.attach(text)
+            im_data = open(IM_NAMEnew, "rb").read()
             image = MIMEImage(im_data, name= filenameNew)
+
+            # Add attachment to message and convert message to string
             message.attach(image)
+            text = message.as_string()
+            print("E-Mail send")
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+                server.login(sender_email, password)
+                server.sendmail(sender_email, receiver_email, text)
+            os.remove(IM_NAMEnew)
 
-        # Add attachment to message and convert message to string
+
+
         
-        text = message.as_string()
-        print("E-Mail send")
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, text)
+    
 
-        
-
-f1 = open("hello.txt", "r+")
-f1.seek(0)
-f1.write("false")
-f1.truncate()
-f1.close()
 
 
 # Clean up
