@@ -7,6 +7,8 @@ First installation like described here: https://tutorials-raspberrypi.de/raspber
 
 With this model: https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite
 
+(Other model for birds, squirrel and raccoons named in this tutorial: https://github.com/EdjeElectronics/TensorFlow-Lite-Object-Detection-on-Android-and-Raspberry-Pi)
+
 Steps to activate, when you have already created the environment like in the description:
 ```shell
 $ source tflite1-env/bin/activate
