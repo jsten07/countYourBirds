@@ -48,6 +48,9 @@ settings:
 - trigger image recognition script with e.g.
 on_event_end  ..\script.py
 
+## Create own model
+Tutorial: https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/training.html
+
 ## Next steps 
 - get screenshots of several timesteps of the recorderd video to make them ready for classification 
 - video/ screenshot gets classifed by tensorflow (in the motion.conf you can define a script which should be excecuted if there is a picture or video is saved)
