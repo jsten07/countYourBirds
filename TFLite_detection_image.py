@@ -41,6 +41,12 @@ message["Subject"] = subject
 #message["Bcc"] = receiver_email  # Recommended for mass emails
 
 
+def overlapping1D(line1, line2):
+    return ((line1[1] >= line2[0]) and (line2[1] >= line1[0]))
+
+def overlapping2D(box1, box2):
+    return (overlapping1D(box1[0], box2[0]) and overlapping1D(box1[1], box2[1]) )
+
 # Log in to server using secure context and send email
 context = ssl.create_default_context()
 
@@ -56,7 +62,7 @@ parser.add_argument('--graph', help='Name of the .tflite file, if different than
 parser.add_argument('--labels', help='Name of the labelmap file, if different than labelmap.txt',
                     default='labelmap.txt')
 parser.add_argument('--threshold', help='Minimum confidence threshold for displaying detected objects',
-                    default=0.4)
+                    default=0.5)
 parser.add_argument('--image', help='Name of the single image to perform detection on. To run detection on multiple images, use --imagedir',
                     default=None)
 parser.add_argument('--imagedir', help='Name of the folder containing images to perform detection on. Folder must contain only images.',
@@ -160,6 +166,7 @@ birdImages=[]
 birdCountAll=0
 status = ""
 
+
 # Loop over every image and perform detection
 for image_path in images:
 
@@ -170,6 +177,7 @@ for image_path in images:
     image_resized = cv2.resize(image_rgb, (width, height))
     input_data = np.expand_dims(image_resized, axis=0)
     birdDetected = False
+    highestScore = 0
     # Normalize pixel values if using a floating model (i.e. if model is non-quantized)
     if floating_model:
         input_data = (np.float32(input_data) - input_mean) / input_std
@@ -184,6 +192,7 @@ for image_path in images:
     scores = interpreter.get_tensor(output_details[2]['index'])[0] # Confidence of detected objects
     #num = interpreter.get_tensor(output_details[3]['index'])[0]  # Total number of detected objects (inaccurate and not needed)
     birdCount=0
+    birdBoxes=[]
     # Loop over all detections and draw detection box if confidence is above minimum threshold
     for i in range(len(scores)):
         if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
@@ -205,7 +214,17 @@ for image_path in images:
             cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
             cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
             if(int(classes[i]) == 15):
-                birdCount = birdCount + 1
+                newBox = [[ymin, ymax], [xmin,xmax]]
+                highestScore = max(highestScore, scores[i])
+                doubleBox= False
+                for boxes in birdBoxes:
+                    if(overlapping2D):
+                        doubleBox = True
+                        print("Bird already counted")
+                
+                if(not doubleBox):
+                    birdBoxes.append([[ymin, ymax], [xmin,xmax]])
+                    birdCount = birdCount + 1
                 birdDetected = True
                 birdInOne = True
                 print("Bird detected")
@@ -218,10 +237,14 @@ for image_path in images:
     #cv2.imshow('Object detector', image)
     if(birdDetected == True):
         headTail =  os.path.split(image_path)
+        
         filenameNew = "processed_" + headTail[1]
         IM_NAMEnew = os.path.join(headTail[0], filenameNew)
         status = cv2.imwrite(IM_NAMEnew, image)
-        birdImages.append(IM_NAMEnew)
+        data = {}
+        data["score"] = highestScore
+        data["image"] = IM_NAMEnew
+        birdImages.append(data)
          # In same directory as script
              # Press any key to continue to next image, or press 'q' to quit
  
@@ -238,10 +261,11 @@ if(birdInOne):
         text = MIMEText(str(birdCountAll) + " new Bird(s) detected.\nTotal birds detected today: " + str(birds))
         message.attach(text)
         print(status)
+        sortedImages = sorted(birdImages, key = lambda x : x["score"], reverse = True)
+        print(sortedImages)
         for i in range(3):
-            number = np.random.randint(0, len(birdImages))
-            im_data = open(birdImages[number], "rb").read()
-            headTail =  os.path.split(birdImages[number])
+            im_data = open(sortedImages[i]["image"], "rb").read()
+            headTail =  os.path.split(sortedImages[i]["image"])
             filenameNew = "processed_" + headTail[1]
             image = MIMEImage(im_data, name= filenameNew)
             message.attach(image)
