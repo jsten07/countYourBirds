@@ -1,5 +1,10 @@
 # countYourBirds
 
+## Specify config.yaml 
+- Need to do in terminal if pip already installed: pip install pyyaml 
+- get an account on https://opensensemap.org/ and specify the user credentials in the config.yaml
+- choose a name and coordinates for your CountYourBirds Box and specify them in the config.yaml 
+
 
 ## Image recognition live
 

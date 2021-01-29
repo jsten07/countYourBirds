@@ -1,0 +1,12 @@
+
+# Define all needed data for the sensebox
+sensebox: 
+  account:
+    email: 
+    password: 
+  senseboxName: 
+  coordinates:
+    latitude: 
+    longitude: 
+
+
