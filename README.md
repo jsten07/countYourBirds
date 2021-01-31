@@ -53,6 +53,12 @@ settings:
 - trigger image recognition script with e.g.
 on_event_end  ..\script.py
 
+
+## Start Detection
+- python setup.py
+- set directory in reset.py and opensensemapAPI.py 
+- motion motion.conf
+
 ## Create own model
 Tutorial: https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/training.html
 
@@ -67,3 +73,14 @@ Tutorial: https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/lat
 ### 16.01
 - send pictures with most confidence
 - upload pcitures and count to sensebox
+
+### 31.01
+- write complete guideline
+- update requirements.bash
+- test on fresh py
+- allow more sensors
+- export more settings to yaml
+- set description on creation
+- make repository public
+- upload model?
+- catch errors
