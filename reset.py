@@ -1,16 +1,83 @@
 from datetime import date
+import cv2
+import numpy as np
+import os
+import glob
 
 
-file = open("/home/pi/tflite1/birds.txt", "r+")
-fl = file.readline()
-birds = int(fl)
-file.seek(0)
-file.write(str(0))
-file.truncate()
-file.close()
-today = date.today()
-d = today.strftime("%d/%m/%Y")
+import yaml
 
-f = open("/home/pi/tflite1/birdsHistory.txt", "a")
-f.write("\n" + d + ": " + fl)
-f.close()
+directory = "/home/pi/tflite1/"
+
+# Read config.yaml file
+with open(directory + "config.yaml", 'r') as stream:
+    yamlData = yaml.safe_load(stream)
+
+path = yamlData["folderPath"]
+update = yamlData["sensebox"]["updateeveryhour"]
+
+PATH_TO_IMAGES = os.path.join(path,"imagesLastHour")
+images = glob.glob(PATH_TO_IMAGES + '/*')
+images.sort(key= os.path.getmtime)
+
+try:
+    images = images[-4:]
+    
+except:
+    images = images
+
+imagesData = []
+    # Loop over every image and perform detection
+for image_path in images:
+
+    # Load image and resize to expected shape [1xHxWx3]
+    image = cv2.imread(image_path)
+    imagesData.append(image)
+
+
+
+if len(imagesData) >= 4:
+    
+            image1=imagesData[3]
+            image2=imagesData[1]
+            image3=imagesData[2]
+            image4=imagesData[0]
+
+            # make all the images of same size 
+            #so we will use resize functio
+
+            # Now how we will attach image with other image
+            # we will create a horizontal stack of images
+            # then we will add it to the vertical stack
+            # let the horizontal pair be (image1,image2)
+            # and (image3,image4)
+            # we will use numpy stack function
+            Horizontal1=np.hstack([image1,image2])
+            Horizontal2=np.hstack([image3,image4])
+            print("yes")
+
+            # Now the horizontal attachment is done
+            # noe vertical attachment
+            Vertical_attachment=np.vstack([Horizontal1,Horizontal2])
+            size=(image1.shape[1], image.shape[0])
+            image = cv2.resize(Vertical_attachment, size, interpolation=cv2.INTER_LINEAR)
+            status = cv2.imwrite("opensensemapImage.jpg", image)
+elif len(imagesData) >= 1:
+   status = cv2.imwrite("opensensemapImage.jpg", imagesData[0])
+   
+   
+
+path2= os.path.join(path, "opensensemapAPI.py")
+
+os.system("/home/pi/tflite1-env/bin/python "+ path2)
+
+
+            
+            
+            
+
+
+            
+            
+            
+            

@@ -45,7 +45,7 @@ if emailWanted:
     
     imagesWanted = yamlData["email"]["images"]
 
-    subject = "New BIRD"
+    subject = "Bird Summary"
     sender_email = yamlData["email"]["sender"]["email"]
     receiver_email = [yamlData["email"]["receiver"]["email"]]
     password= yamlData["email"]["sender"]["password"]
@@ -186,6 +186,7 @@ birdInOne = False
 birdImages=[]
 birdCountAll=0
 status = ""
+filenameNew= ""
 
 
 # Loop over every image and perform detection
@@ -280,11 +281,13 @@ if(birdInOne):
         file.write(str(birds))
         file.truncate()
         file.close()
-        text = MIMEText(str(birdCountAll) + " new Bird(s) detected.\nTotal birds detected in the last " + hours + " hour(s): "+ str(birds))
+        
+        text = MIMEText(str(birdCountAll) + " new Bird(s) detected.\nTotal birds detected in the last " + str(hours) + " hour(s): "+ str(birds))
         message.attach(text)
         print(status)
         sortedImages = sorted(birdImages, key = lambda x : x["score"], reverse = True)
-        status = cv2.imwrite(os.path.join(path,"imagesLastHour", IMNameNew), sortedImages[0]["image"])
+        im_data = cv2.imread(sortedImages[0]["image"])
+        status = cv2.imwrite(os.path.join(path,"imagesLastHour", filenameNew), im_data)
         print(sortedImages)
         if emailWanted:
             min1= min(3, birdCountAll)

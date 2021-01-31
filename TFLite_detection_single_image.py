@@ -21,28 +21,40 @@ import sys
 import glob
 import importlib.util
 import email, smtplib, ssl
+from crontab import CronTab
+import yaml
 
-from email import encoders
-from email.mime.base import MIMEBase
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
+# Read config.yaml file
+with open("config.yaml", 'r') as stream:
+    yamlData = yaml.safe_load(stream)
 
-subject = "New BIRD"
-sender_email = "birdscounting@gmail.com"
-receiver_email = ["nick.jakuschona@gmail.com" , "nick1212@gmx.de"]
-password= "countingBirds20"
+path = yamlData["folderPath"]
 
-# Create a multipart message and set headers
-message = MIMEMultipart()
-message["From"] = sender_email
-message["To"] = "nick.jakuschona@gmail.com, nick1212@gmx.de"
-message["Subject"] = subject
-#message["Bcc"] = receiver_email  # Recommended for mass emails
+emailWanted = yamlData["email"]["wanted"]
+
+if emailWanted: 
+
+    from email import encoders
+    from email.mime.base import MIMEBase
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from email.mime.image import MIMEImage
+
+    subject = "New BIRD"
+    sender_email = yamlData["email"]["sender"]["email"]
+    receiver_email = [yamlData["email"]["receiver"]["email"]]
+    password= yamlData["email"]["sender"]["password"]
+
+    # Create a multipart message and set headers
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = yamlData["email"]["receiver"]["email"]
+    message["Subject"] = subject
+    #message["Bcc"] = receiver_email  # Recommended for mass emails
 
 
-# Log in to server using secure context and send email
-context = ssl.create_default_context()
+    # Log in to server using secure context and send email
+    context = ssl.create_default_context()
 
 
 #context = ssl.create_default_context()
@@ -234,7 +246,7 @@ if(fl == "false"):
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
                 server.login(sender_email, password)
                 server.sendmail(sender_email, receiver_email, text)
-            os.remove(IM_NAMEnew)
+            #os.remove(IM_NAMEnew)
 
 
 
