@@ -1,12 +1,28 @@
 
 # Define all needed data for the sensebox
-sensebox: 
+detection:
+  saveFolder: notUsedYet
+  threshold: 0.5
+email:
+  images: 3
+  receiver:
+    email: 
+  sender:
+    email: 
+    password: 
+  wanted: true
+folderPath: /home/pi/
+sensebox:
   account:
     email: 
     password: 
-  senseboxName: 
   coordinates:
     latitude: 
     longitude: 
+  id: notSet
+  senseboxName: 
+  sensors:
+    all: 
+  updateeveryhour: 1
 
 
