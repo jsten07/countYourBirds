@@ -22,23 +22,44 @@ import glob
 import importlib.util
 import email, smtplib, ssl
 
-from email import encoders
-from email.mime.base import MIMEBase
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
+import yaml
 
-subject = "BIRD Summary"
-sender_email = "birdscounting@gmail.com"
-receiver_email = ["nick.jakuschona@gmail.com" , "nick1212@gmx.de"]
-password= "countingBirds20"
+# Read config.yaml file
+with open("config.yaml", 'r') as stream:
+    yamlData = yaml.safe_load(stream)
 
-# Create a multipart message and set headers
-message = MIMEMultipart()
-message["From"] = sender_email
-message["To"] = "nick.jakuschona@gmail.com, nick1212@gmx.de"
-message["Subject"] = subject
-#message["Bcc"] = receiver_email  # Recommended for mass emails
+path = yamlData["folderPath"]
+
+emailWanted = yamlData["email"]["wanted"]
+
+hours = yamlData["sensebox"]["updateeveryhour"]
+threshold = yamlData["detection"]["threshold"]
+
+if emailWanted: 
+
+    from email import encoders
+    from email.mime.base import MIMEBase
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from email.mime.image import MIMEImage
+    
+    imagesWanted = yamlData["email"]["images"]
+
+    subject = "New BIRD"
+    sender_email = yamlData["email"]["sender"]["email"]
+    receiver_email = [yamlData["email"]["receiver"]["email"]]
+    password= yamlData["email"]["sender"]["password"]
+
+    # Create a multipart message and set headers
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = yamlData["email"]["receiver"]["email"]
+    message["Subject"] = subject
+    #message["Bcc"] = receiver_email  # Recommended for mass emails
+
+
+    # Log in to server using secure context and send email
+    context = ssl.create_default_context()
 
 
 def overlapping1D(line1, line2):
@@ -62,7 +83,7 @@ parser.add_argument('--graph', help='Name of the .tflite file, if different than
 parser.add_argument('--labels', help='Name of the labelmap file, if different than labelmap.txt',
                     default='labelmap.txt')
 parser.add_argument('--threshold', help='Minimum confidence threshold for displaying detected objects',
-                    default=0.5)
+                    default=threshold)
 parser.add_argument('--image', help='Name of the single image to perform detection on. To run detection on multiple images, use --imagedir',
                     default=None)
 parser.add_argument('--imagedir', help='Name of the folder containing images to perform detection on. Folder must contain only images.',
@@ -241,6 +262,7 @@ for image_path in images:
         filenameNew = "processed_" + headTail[1]
         IM_NAMEnew = os.path.join(headTail[0], filenameNew)
         status = cv2.imwrite(IM_NAMEnew, image)
+        status = cv2.imwrite(os.path.join(path,"processed", filenameNew), image)
         data = {}
         data["score"] = highestScore
         data["image"] = IM_NAMEnew
@@ -258,25 +280,32 @@ if(birdInOne):
         file.write(str(birds))
         file.truncate()
         file.close()
-        text = MIMEText(str(birdCountAll) + " new Bird(s) detected.\nTotal birds detected today: " + str(birds))
+        text = MIMEText(str(birdCountAll) + " new Bird(s) detected.\nTotal birds detected in the last " + hours + " hour(s): "+ str(birds))
         message.attach(text)
         print(status)
         sortedImages = sorted(birdImages, key = lambda x : x["score"], reverse = True)
+        status = cv2.imwrite(os.path.join(path,"imagesLastHour", IMNameNew), sortedImages[0]["image"])
         print(sortedImages)
-        for i in range(3):
-            im_data = open(sortedImages[i]["image"], "rb").read()
-            headTail =  os.path.split(sortedImages[i]["image"])
-            filenameNew = "processed_" + headTail[1]
-            image = MIMEImage(im_data, name= filenameNew)
-            message.attach(image)
+        if emailWanted:
+            min1= min(3, birdCountAll)
+            for i in range(min1):
+                im_data = open(sortedImages[i]["image"], "rb").read()
+                headTail =  os.path.split(sortedImages[i]["image"])
+                filenameNew = "processed_" + headTail[1]
+                image = MIMEImage(im_data, name= filenameNew)
+                message.attach(image)
+                
+        # read all the image
+        # we are going to take 4 images only
+        
 
         # Add attachment to message and convert message to string
-        
-        text = message.as_string()
-        print("E-Mail send")
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, text)
+
+            text = message.as_string()
+            print("E-Mail send")
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+                server.login(sender_email, password)
+                server.sendmail(sender_email, receiver_email, text)
 
         
 
