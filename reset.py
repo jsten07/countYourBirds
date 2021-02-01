@@ -35,12 +35,12 @@ for image_path in images:
     imagesData.append(image)
 
 
-
+print(images)
 if len(imagesData) >= 4:
     
             image1=imagesData[3]
-            image2=imagesData[1]
-            image3=imagesData[2]
+            image2=imagesData[2]
+            image3=imagesData[1]
             image4=imagesData[0]
 
             # make all the images of same size 
@@ -61,9 +61,9 @@ if len(imagesData) >= 4:
             Vertical_attachment=np.vstack([Horizontal1,Horizontal2])
             size=(image1.shape[1], image.shape[0])
             image = cv2.resize(Vertical_attachment, size, interpolation=cv2.INTER_LINEAR)
-            status = cv2.imwrite("opensensemapImage.jpg", image)
+            status = cv2.imwrite(os.path.join(path, "opensensemapImage.jpg"), image)
 elif len(imagesData) >= 1:
-   status = cv2.imwrite("opensensemapImage.jpg", imagesData[0])
+   status = cv2.imwrite(os.path.join(path,"opensensemapImage.jpg"), imagesData[0])
    
    
 
