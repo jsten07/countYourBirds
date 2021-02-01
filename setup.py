@@ -31,7 +31,14 @@ cron = CronTab(user = True)
 
 job= cron.new(command = "/home/pi/tflite1-env/bin/python " +path1)
 
-job.every(int(update)).hours()
+if update < 1 :
+    minutes = 60 * update
+    print(minutes)
+    job.every(minutes).minutes()
+else:
+    hour  = int(update)
+    job.every(hour).hours()
+    
 
 os.system("/home/pi/tflite1-env/bin/python "+ path2)
 
