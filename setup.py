@@ -1,6 +1,7 @@
 import os
 from crontab import CronTab
 import yaml
+import pickle
 
 # Read config.yaml file
 with open("config.yaml", 'r') as stream:
@@ -22,6 +23,9 @@ f.close()
 f = open("birdsHistory.txt", "w+")
 f.write("History")
 f.close()
+
+with open('species.pkl', 'wb') as f:
+    pickle.dump({}, f, pickle.HIGHEST_PROTOCOL)
 
 os.makedirs("imagesLastHour", exist_ok=True)
 os.makedirs("processed",  exist_ok=True)
