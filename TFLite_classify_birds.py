@@ -28,7 +28,7 @@ def count_spec(species):
         
     save_obj(spec_file, 'species')
     
-print(load_obj('species'))
+    print(spec_file)
     
 
 
