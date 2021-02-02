@@ -32,6 +32,12 @@ $ python3 TFLite_detection_webcam.py --modeldir=Sample_TF_Lite_Model
 ```shell
 $ python TFLite_detection_image.py --modeldir=Sample_TF_Lite_Model --image name.jpg
 ```
+
+## Bird classification
+Basis workflow found here:
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/examples/python/label_image.py
+By using this model:
+https://tfhub.dev/google/lite-model/aiy/vision/classifier/birds_V1/3
 ## Motion detection
 
 Use this description to start https://www.bouvet.no/bouvet-deler/utbrudd/building-a-motion-activated-security-camera-with-the-raspberry-pi-zero
