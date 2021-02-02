@@ -22,6 +22,8 @@ import glob
 import importlib.util
 import email, smtplib, ssl
 
+from TFLite_classify_birds import classify
+
 import yaml
 
 # Read config.yaml file
@@ -219,23 +221,35 @@ for image_path in images:
     for i in range(len(scores)):
         if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
 
-            # Get bounding box coordinates and draw box
-            # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
-            ymin = int(max(1,(boxes[i][0] * imH)))
-            xmin = int(max(1,(boxes[i][1] * imW)))
-            ymax = int(min(imH,(boxes[i][2] * imH)))
-            xmax = int(min(imW,(boxes[i][3] * imW)))
-            
-            cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
-
-            # Draw label
-            object_name = labels[int(classes[i])] # Look up object name from "labels" array using class index
-            label = '%s: %d%%' % (object_name, int(scores[i]*100)) # Example: 'person: 72%'
-            labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2) # Get font size
-            label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
-            cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
-            cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
             if(int(classes[i]) == 15):
+                
+                # Get bounding box coordinates and draw box
+                # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
+                ymin = int(max(1,(boxes[i][0] * imH)))
+                xmin = int(max(1,(boxes[i][1] * imW)))
+                ymax = int(min(imH,(boxes[i][2] * imH)))
+                xmax = int(min(imW,(boxes[i][3] * imW)))
+                
+                ydif = int((ymax-ymin)/2)
+                xdif = int((xmax-xmin)/2)
+                
+                # cv2.imshow('Object detector', image)
+                im_crop = image.copy()[ymin-xdif:ymax+xdif, xmin-ydif:xmax+ydif]
+                # cv2.imwrite("/home/pi/motion/saved/test" + str(i) + ".jpg", im_crop)
+                # cv2.imshow('sample', image)
+                species = classify(im_crop)
+                print(species)
+                
+                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
+
+                # Draw label
+                object_name = labels[int(classes[i])] # Look up object name from "labels" array using class index
+                label = '%s: %d%%' % (object_name, int(scores[i]*100)) # Example: 'person: 72%'
+                labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2) # Get font size
+                label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
+                cv2.rectangle(image, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
+                cv2.putText(image, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
+                
                 newBox = [[ymin, ymax], [xmin,xmax]]
                 highestScore = max(highestScore, scores[i])
                 doubleBox= False
@@ -250,6 +264,8 @@ for image_path in images:
                 birdDetected = True
                 birdInOne = True
                 print("Bird detected")
+                
+
     birdCountAll = max(birdCountAll, birdCount)
         
                     #with smtplib.SMTP_SSL("smtp.gmail.com", port, context = context) as server:
@@ -282,7 +298,12 @@ if(birdInOne):
         file.truncate()
         file.close()
         
-        text = MIMEText(str(birdCountAll) + " new Bird(s) detected.\nTotal birds detected in the last " + str(hours) + " hour(s): "+ str(birds))
+        print(species)
+        if species == "":
+            spec_text = ""
+        else:
+            spec_text = " of species " + species
+        text = MIMEText(str(birdCountAll) + " new Bird(s)" + spec_text + " detected.\nTotal birds detected in the last " + str(hours) + " hour(s): "+ str(birds))
         message.attach(text)
         print(status)
         sortedImages = sorted(birdImages, key = lambda x : x["score"], reverse = True)
