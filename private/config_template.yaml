@@ -11,7 +11,8 @@ email:
     email: 
     password: 
   wanted: true
-folderPath: /home/pi/
+folderPath: /home/pi/countYourBirds
+environmentPath: /home/pi/birds-env
 sensebox:
   account:
     email: 
