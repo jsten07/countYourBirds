@@ -101,8 +101,6 @@ def classify(image_array):
             if float(results[i] / 255.0) > 0.5:
                 bird_name = labels[i]
     # print(bird_name)
-    if bird_name != "":
-        count_spec(bird_name)
     return bird_name
 
 #classify(test_im)
