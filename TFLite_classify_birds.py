@@ -29,7 +29,16 @@ def count_spec(species):
     save_obj(spec_file, 'species')
     
     print(spec_file)
+
+
+def add_spec(spec_dict):
+    spec_file = load_obj('species')
+    spec_file = {k: spec_dict.get(k, 0) + spec_file.get(k, 0) for k in set(spec_dict) | set(spec_file)}
+    save_obj(spec_file, 'species')
     
+    print(spec_file)
+    return(spec_file)
+   
 
 
 pkg = importlib.util.find_spec('tflite_runtime')
