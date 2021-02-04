@@ -47,8 +47,8 @@ if pkg:
 else:
     from tensorflow.lite.python.interpreter import Interpreter
 
-interpreter = Interpreter(model_path="/home/pi/tflite1/models/bird_classification/classify.tflite")
-labels = load_labels("/home/pi/tflite1/models/bird_classification/probability-labels-en.txt")
+interpreter = Interpreter(model_path="/models/bird_classification/classify.tflite")
+labels = load_labels("/models/bird_classification/probability-labels-en.txt")
 
 interpreter.allocate_tensors()
 
