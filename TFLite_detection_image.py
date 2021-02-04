@@ -22,7 +22,7 @@ import glob
 import importlib.util
 import email, smtplib, ssl
 
-from TFLite_classify_birds import classify
+from TFLite_classify_birds import classify, add_spec
 
 import yaml
 
