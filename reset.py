@@ -3,22 +3,45 @@ import cv2
 import numpy as np
 import os
 import glob
+import pickle
 
 
 import yaml
 
-directory = "/home/pi/tflite1/"
 
+
+
+
+from opensensemapAPI import *
+
+
+def load_obj(name):
+    with open(name + '.pkl', 'rb') as f:
+        return pickle.load(f)
+    
+def save_obj(obj, name):
+    with open(name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+        
+
+    
+    
 # Read config.yaml file
-with open(directory + "config.yaml", 'r') as stream:
+with open("config.yaml", 'r') as stream:
     yamlData = yaml.safe_load(stream)
 
 path = yamlData["folderPath"]
 update = yamlData["sensebox"]["updateeveryhour"]
+email = yamlData["sensebox"]["account"]["email"]
+password = yamlData["sensebox"]["account"]["password"]
+senseboxId =  yamlData["sensebox"]["id"]
+sensorId = yamlData["sensebox"]["sensors"]["all"]
 
 PATH_TO_IMAGES = os.path.join(path,"imagesLastHour")
 images = glob.glob(PATH_TO_IMAGES + '/*')
 images.sort(key= os.path.getmtime)
+image = ""
+
 
 try:
     images = images[-4:]
@@ -65,11 +88,37 @@ if len(imagesData) >= 4:
 elif len(imagesData) >= 1:
    status = cv2.imwrite(os.path.join(path,"opensensemapImage.jpg"), imagesData[0])
    
+token = login(email, password)
+spec_file=load_obj("species")
+for species in spec_file:
+    sensorId= ""
+    print(species)
+    if  not (species in yamlData["sensebox"]["sensors"]):
+        sensorId = createSensor(species, senseboxId, token)
+    else:
+        sensorId = yamlData["sensebox"]["sensors"][species]
+    value = spec_file[species]
+    updateSensor(sensorId, senseboxId, value, token)
+    
+    
+if spec_file["all"] > 0:
+        
+    updateImage(senseboxId,image, token)
+    
+    
+save_obj({"all" : 0}, "species")
+
+now = datetime.now()
+d = now.strftime("%d/%m/%Y, %H:%M")
+
+history_file = load_obj("speciesHistory")
+history_file[d] = spec_file
+save_obj(history_file, "speciesHistory")
+    
+
+    
    
-
-path2= os.path.join(path, "opensensemapAPI.py")
-
-os.system("/home/pi/tflite1-env/bin/python "+ path2)
+   
 
 
             

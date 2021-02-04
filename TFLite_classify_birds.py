@@ -47,8 +47,8 @@ if pkg:
 else:
     from tensorflow.lite.python.interpreter import Interpreter
 
-interpreter = Interpreter(model_path="models/bird_classification/classify.tflite")
-labels = load_labels("models/bird_classification/probability-labels-en.txt")
+interpreter = Interpreter(model_path="/home/pi/tflite1/models/bird_classification/classify.tflite")
+labels = load_labels("/home/pi/tflite1/models/bird_classification/probability-labels-en.txt")
 
 interpreter.allocate_tensors()
 
@@ -72,35 +72,37 @@ def classify(image_array):
     
     #cv2.imshow("bird", image_array)
     #cv2.waitKey(2000)
-    
-    image_rgb = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
-    imH, imW, _ = image_array.shape
-    image_resized = cv2.resize(image_rgb, (width, height))
-    input_data = np.expand_dims(image_resized, axis=0)
-    
-    if floating_model:
-        input_data = (np.float32(input_data) - input_mean) / input_std
+    try:
+            image_rgb = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
+            imH, imW, _ = image_array.shape
+            image_resized = cv2.resize(image_rgb, (width, height))
+            input_data = np.expand_dims(image_resized, axis=0)
+            
+            if floating_model:
+                input_data = (np.float32(input_data) - input_mean) / input_std
 
-    interpreter.set_tensor(input_details[0]['index'], input_data)
-    interpreter.invoke()
+            interpreter.set_tensor(input_details[0]['index'], input_data)
+            interpreter.invoke()
 
-    output_data = interpreter.get_tensor(output_details[0]['index'])
-    results = np.squeeze(output_data)
-    
-    # print(results)
+            output_data = interpreter.get_tensor(output_details[0]['index'])
+            results = np.squeeze(output_data)
+            
+            # print(results)
 
-    top_k = results.argsort()[-5:][::-1]
-    bird_name = ""
-    for i in top_k:
-        if floating_model:
-            print('{:08.6f}: {}'.format(float(results[i]), labels[i]))
-            if float(results[i]) > 0.5:
-                bird_name = labels[i]
-        else:
-            print('{:08.6f}: {}'.format(float(results[i] / 255.0), labels[i]))
-            if float(results[i] / 255.0) > 0.5:
-                bird_name = labels[i]
-    # print(bird_name)
-    return bird_name
+            top_k = results.argsort()[-5:][::-1]
+            bird_name = ""
+            for i in top_k:
+                if floating_model:
+                    print('{:08.6f}: {}'.format(float(results[i]), labels[i]))
+                    if float(results[i]) > 0.5:
+                        bird_name = labels[i]
+                else:
+                    print('{:08.6f}: {}'.format(float(results[i] / 255.0), labels[i]))
+                    if float(results[i] / 255.0) > 0.5:
+                        bird_name = labels[i]
+            # print(bird_name)
+            return bird_name
+    except:
+            return ""
 
 #classify(test_im)

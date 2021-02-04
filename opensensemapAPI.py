@@ -5,7 +5,22 @@ import yaml
 import os
 from datetime import datetime
 
-directory = "/home/pi/tflite1/"
+# login to sensebox
+# Needed for connection to accounts and for requests like post sensebox or update sensebox 
+# Needed for requests like send sensor value  only if authentification needed is true 
+def login(email, password):
+    headersLoginSensebox = {'content-type': 'application/json'}
+
+    urlLogin = 'https://api.opensensemap.org/users/sign-in'
+
+    paramsLogin = {'email': email, 'password': password}
+
+    requestLogin = requests.post(urlLogin, params=paramsLogin, headers=headersLoginSensebox)
+    responseLogin = requestLogin.text
+    responseLoginParsed = json.loads(responseLogin)
+    jwtToken = responseLoginParsed['token']  # JWT = json web token
+    return(jwtToken)
+
 
 # links: 
 # sensebox forum: https://forum.sensebox.de/
@@ -15,70 +30,12 @@ directory = "/home/pi/tflite1/"
 # hint: If you want to try out new request, reproduce them on opensensemap and look in the browser console/ network analysis
 
 # initialize variables 
-
-senseboxAlreadyThere = False
-
-# Read config.yaml file
-with open(directory + "config.yaml", 'r') as stream:
-    yamlData = yaml.safe_load(stream)
-
-email = yamlData["sensebox"]["account"]["email"]
-password = yamlData["sensebox"]["account"]["password"]
-senseboxName = yamlData["sensebox"]["senseboxName"]
-lat = yamlData["sensebox"]["coordinates"]["latitude"]
-lng = yamlData["sensebox"]["coordinates"]["longitude"]
-senseboxId =  yamlData["sensebox"]["id"]
-sensorId = yamlData["sensebox"]["sensors"]["all"]
-
-path = yamlData["folderPath"]
-
-path1= os.path.join(path, "birds.txt")
-path2= os.path.join(path, "birdsHistory.txt")
-path3= os.path.join(path, "opensensemapImage.jpg")
-
-if senseboxId != "notSet":
-    senseboxAlreadyThere = True
-else:
-    print("Please run the setup.py skript before")
-
-# login to sensebox
-# Needed for connection to accounts and for requests like post sensebox or update sensebox 
-# Needed for requests like send sensor value  only if authentification needed is true 
-headersLoginSensebox = {'content-type': 'application/json'}
-
-urlLogin = 'https://api.opensensemap.org/users/sign-in'
-
-paramsLogin = {'email': email, 'password': password}
-
-requestLogin = requests.post(urlLogin, params=paramsLogin, headers=headersLoginSensebox)
-responseLogin = requestLogin.text
-responseLoginParsed = json.loads(responseLogin)
-jwtToken = responseLoginParsed['token']  # JWT = json web token
+def updateSensor(sensorId, senseboxId, value,jwtToken):
 
 
-
-
-
-# send value to sensebox sensor
-# Need to adapt senseboxId, senseboxSensorIdNumberOfCountedBirds in the config.yaml and value for corresponding sensebox and sensor 
-if senseboxAlreadyThere == True:
-    file = open(path1, "r+")
-    fl = file.readline()
-    birds = int(fl)
-    file.seek(0)
-    file.write(str(0))
-    file.truncate()
-    file.close()
-    now = datetime.now()
-    d = now.strftime("%d/%m/%Y, %H:%M")
-
-    f = open(path2, "a")
-    f.write("\n" + d + ": " + fl)
-    f.close()
-    value = birds
 
     headersSendSensorValue = {'content-type': 'application/json',
-               'Authorization': '946cd581ab67db398e9b8bc5f58b1f1dcde13465eb52a409c6b154ebc35ad77e'}
+               'Authorization': 'Bearer ' + jwtToken}
     urlSensorValueSensebox = 'https://api.opensensemap.org/boxes/' + senseboxId + '/data'
 
     dataValue = [{"sensor": sensorId, "value": value}]
@@ -92,14 +49,14 @@ if senseboxAlreadyThere == True:
 
 
 # update the sensebox with a picture
-if senseboxAlreadyThere == True and value > 0: 
+def updateImage(senseboxId, image, jwtToken):
     headersUpdateSensebox={'content-type': 'application/json',
                'Authorization': 'Bearer ' + jwtToken}
     description = 'The here shown values are collected by a Raspberry Pi. Each time a bird is recognized by the Raspberry Pi the here shown image gets updated, and the counter increases correspondingly. Further information about the system you can find by the following link:'
     weblink = 'https://github.com/jsten07/countYourBirds'
 
     # encoding of the image 
-    imageEncoded = base64.b64encode(open(path3, "rb").read())
+    imageEncoded = base64.b64encode(open('opensensemapImage.jpg', "rb").read())
     imageEncodedString = imageEncoded.decode()
     imageEncodedStringDataUri = 'data:image/jpeg;base64,' + imageEncodedString
 
@@ -112,8 +69,87 @@ if senseboxAlreadyThere == True and value > 0:
     print(requestUpdateSensebox.text)
 
 
+def createSensebox(email, password, lat, lng):
+    
+    # login to sensebox
+    # Needed for connection to accounts and for requests like post sensebox or update sensebox 
+    # Needed for requests like send sensor value  only if authentification needed is true 
+    headersLoginSensebox = {'content-type': 'application/json'}
+
+    urlLogin = 'https://api.opensensemap.org/users/sign-in'
+
+    paramsLogin = {'email': email, 'password': password}
+
+    requestLogin = requests.post(urlLogin, params=paramsLogin, headers=headersLoginSensebox)
+    responseLogin = requestLogin.text
+    responseLoginParsed = json.loads(responseLogin)
+    jwtToken = responseLoginParsed['token']  # JWT = json web token
 
 
+    headersPostSensebox = {'content-type': 'application/json',
+               'Authorization': 'Bearer ' + jwtToken}
+
+    # lat, lng are already defined at the top, by the config.yaml
+    name = senseboxName
+    exposure = 'outdoor'
+    grouptag = 'CountYourBirds'
+    icon = 'osem-signal'
+
+    dataPostSensebox = {"name": name, "exposure": exposure, "location": [lng, lat], "grouptag": grouptag, "sensors": [
+        {"icon": icon, "title": "Number of Counted Birds", "unit": "Birds"}]}
+
+    urlPostSensebox = 'https://api.opensensemap.org/boxes'
+
+    requestPostSensebox = requests.post(urlPostSensebox, json = dataPostSensebox, headers = headersPostSensebox)
+    print(requestPostSensebox.status_code)
+    resultJSON = json.loads(requestPostSensebox.text)
+    print(resultJSON)
+    senseboxId = resultJSON["data"]["_id"]
+    sensorId = resultJSON["data"]["sensors"][0]["_id"]
+    print(senseboxId)
+    
+    with open("config.yaml") as stream:
+        yamlData = yaml.safe_load(stream)
+        
+        yamlData["sensebox"]["id"] = senseboxId
+        yamlData["sensebox"]["sensors"]["all"] = sensorId
+        
+        with open("config.yaml", "w") as stream:
+            yaml.dump(yamlData, stream)
+            
+            
+def createSensor(species, senseboxId, jwtToken):  
+
+    sensorName = "Number of Counted Birds – " + species
+    icon = 'osem-signal'
+
+    headersUpdateSensebox={'content-type': 'application/json',
+           'Authorization': 'Bearer ' + jwtToken}
+
+    urlUpdateSensebox = 'https://api.opensensemap.org/boxes/' + senseboxId
+
+    dataPostNewSensor = {"sensors": [
+        {"icon": icon, "title": sensorName, "unit": "Birds", "new": "true", "edited":"true"}]}
+
+    requestUpdateSensebox = requests.put(urlUpdateSensebox, json = dataPostNewSensor, headers=headersUpdateSensebox)
+    print(requestUpdateSensebox.status_code)
+    print(requestUpdateSensebox.text)
+    resultJSON = json.loads(requestUpdateSensebox.text)
+
+    sensors = resultJSON["data"]["sensors"]
+    sensorId = sensors[len(sensors) - 1]["_id"]
+    print(senseboxId)
+        
+    with open("config.yaml") as stream:
+        yamlData = yaml.safe_load(stream)
+            
+        yamlData["sensebox"]["sensors"][species] = sensorId
+            
+        with open("config.yaml", "w") as stream:
+            yaml.dump(yamlData, stream)
+            
+    print(sensorId)
+    return(sensorId)
 
 # further code not needed at the moment: 
 

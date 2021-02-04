@@ -22,6 +22,7 @@ import glob
 import importlib.util
 import email, smtplib, ssl
 
+
 from TFLite_classify_birds import classify, add_spec
 
 import yaml
@@ -147,6 +148,7 @@ if use_TPU:
 
 # Get path to current working directory
 CWD_PATH = os.getcwd()
+PATH_TO_IMAGES = ""
 
 # Define path to images and grab all image filenames
 if IM_DIR:
@@ -348,6 +350,10 @@ f1.seek(0)
 f1.write("false")
 f1.truncate()
 f1.close()
+
+for image_path in images:
+    os.remove(image_path)
+os.removedirs(PATH_TO_IMAGES)
 
 
 # Clean up
