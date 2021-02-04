@@ -1,6 +1,6 @@
 ######## Webcam Object Detection Using Tensorflow-trained Classifier #########
 #
-# Author: Evan Juras
+# Author of original script: Evan Juras
 # Date: 9/28/19
 # Description: 
 # This program uses a TensorFlow Lite object detection model to perform object 
@@ -69,6 +69,17 @@ def overlapping1D(line1, line2):
 
 def overlapping2D(box1, box2):
     return (overlapping1D(box1[0], box2[0]) and overlapping1D(box1[1], box2[1]) )
+
+def count_spec(species, spec_file):
+    if not ('all' in spec_file):
+        spec_file['all'] = 0
+    spec_file['all'] += 1
+    if species in spec_file:
+        spec_file[species] += 1
+    else:
+        if species != '':
+            spec_file[species] = 1
+    return spec_file
 
 # Log in to server using secure context and send email
 context = ssl.create_default_context()
@@ -186,7 +197,7 @@ input_std = 127.5
 
 birdInOne = False
 birdImages=[]
-birdCountAll=0
+birdCountAll={}
 status = ""
 filenameNew= ""
 
@@ -215,7 +226,7 @@ for image_path in images:
     classes = interpreter.get_tensor(output_details[1]['index'])[0] # Class index of detected objects
     scores = interpreter.get_tensor(output_details[2]['index'])[0] # Confidence of detected objects
     #num = interpreter.get_tensor(output_details[3]['index'])[0]  # Total number of detected objects (inaccurate and not needed)
-    birdCount=0
+    birdCount={}
     birdBoxes=[]
     # Loop over all detections and draw detection box if confidence is above minimum threshold
     for i in range(len(scores)):
@@ -262,13 +273,16 @@ for image_path in images:
                 
                 if(not doubleBox):
                     birdBoxes.append([[ymin, ymax], [xmin,xmax]])
-                    birdCount = birdCount + 1
+                    birdCount = count_spec(species, birdCount)
                 birdDetected = True
                 birdInOne = True
                 print("Bird detected")
                 
 
-    birdCountAll = max(birdCountAll, birdCount)
+    if sum(birdCountAll.values()) > sum(birdCount.values()):
+        birdCountAll = birdCountAll
+    else:
+        birdCountAll = birdCount
         
                     #with smtplib.SMTP_SSL("smtp.gmail.com", port, context = context) as server:
                         #server.login
@@ -291,21 +305,15 @@ for image_path in images:
  
          
 if(birdInOne):
-        file = open("birds.txt", "r+")
-        fl = file.readline()
-        birds = int(fl)
-        birds = birds + birdCountAll
-        file.seek(0)
-        file.write(str(birds))
-        file.truncate()
-        file.close()
+        birds = add_spec(birdCountAll)
+        birds = birds["all"]
         
         print(species)
         if species == "":
             spec_text = ""
         else:
             spec_text = " of species " + species
-        text = MIMEText(str(birdCountAll) + " new Bird(s)" + spec_text + " detected.\nTotal birds detected in the last " + str(hours) + " hour(s): "+ str(birds))
+        text = MIMEText(str(birdCountAll["all"]) + " new Bird(s)" + spec_text + " detected.\nTotal birds detected in the last " + str(hours) + " hour(s): "+ str(birds))
         message.attach(text)
         print(status)
         sortedImages = sorted(birdImages, key = lambda x : x["score"], reverse = True)
@@ -313,7 +321,7 @@ if(birdInOne):
         status = cv2.imwrite(os.path.join(path,"imagesLastHour", filenameNew), im_data)
         print(sortedImages)
         if emailWanted:
-            min1= min(3, birdCountAll)
+            min1= min(3, birdCountAll["all"])
             for i in range(min1):
                 im_data = open(sortedImages[i]["image"], "rb").read()
                 headTail =  os.path.split(sortedImages[i]["image"])
