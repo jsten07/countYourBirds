@@ -45,7 +45,7 @@ os.makedirs("processed",  exist_ok=True)
 
 cron = CronTab(user = True)
 
-job= cron.new(command = "cd " + path + " && " +  environmentPath + "bin/python "+ " reset.py")
+job= cron.new(command = "cd " + path + " && " +  environmentPath + "/bin/python "+ " reset.py")
 
 if update < 1 :
     minutes = 60 * update
