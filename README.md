@@ -7,7 +7,7 @@ The software is provided in relation to Citizien Science in such a way that citi
 
 Instructions and all other information can be found in the [wiki](https://github.com/jsten07/countYourBirds/wiki).  
 
-This is software that was developed as part of the study project "Image Recognition for Citizen Science" in the winterterm 2020/21 at [ifgi](https://www.uni-muenster.de/Geoinformatics/en/index.html) at the [University of Münster](https://www.uni-muenster.de/en/). 
+This software was developed as part of the study project "Image Recognition for Citizen Science" in the winterterm 2020/21 at [ifgi](https://www.uni-muenster.de/Geoinformatics/en/index.html) at the [University of Münster](https://www.uni-muenster.de/en/). 
 
 
 
