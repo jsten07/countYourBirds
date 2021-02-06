@@ -24,6 +24,7 @@ sensebox:
   senseboxName: #the name of your sensebox
   sensors:  #you can set them manualy but id will create one for each species
     all: 
-  updateeveryhour: 1
+  updateeveryhour: 1 #update will happen erver x hours. Decimals like 0.5 are allowd
+  uploadPhotos: true #wether the photos should be uploaded to the sensebox (privacy issues) [true, false]
 
 
