@@ -170,8 +170,10 @@ input_std = 127.5
 
 file = open("hello.txt", "r+")
 fl = file.readline()
+liveUpdate = yamlData["email"]["liveUpdate"]
 
-if(fl == "false"):
+
+if(fl == "false" and liveUpdate==true):
 # Loop over every image and perform detection
     for image_path in images:
 
