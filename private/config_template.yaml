@@ -1,28 +1,28 @@
 
 # Define all needed data for the sensebox
 detection:
-  saveFolder: notUsedYet
-  threshold: 0.5
+  threshold: 0.5 #minimum threshold of detection percentage
 email:
-  images: 3
+  images: 3 #immages attached to e-mail
   receiver:
-    email: 
+    email: #e-mail address of receiver e-mail
   sender:
-    email: 
-    password: 
-  wanted: true
+    email: #e-mail address of sender e-mail
+    password: #password of e-mail address of sender e-mail
+  wanted: true #wether general e-mails are wanted, which are sended at the end of a bird event [true, false]
+  liveUpdate: true #wether the user wanted an e-mails are wanted at the begin of a bird event [true, false]
 folderPath: /home/pi/countYourBirds
-environmentPath: /home/pi/birds-env
+environmentPath: /home/pi/countYourBirds/birds-env
 sensebox:
-  account:
-    email: 
-    password: 
-  coordinates:
+  account: 
+    email: #email of your sensebox account
+    password: #password of your sensebox account
+  coordinates: #coordinates of your sensebox
     latitude: 
     longitude: 
-  id: notSet
-  senseboxName: 
-  sensors:
+  id: notSet #you can set it manualy but id will create one box if not
+  senseboxName: #the name of your sensebox
+  sensors:  #you can set them manualy but id will create one for each species
     all: 
   updateeveryhour: 1
 
