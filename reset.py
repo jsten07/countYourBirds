@@ -103,7 +103,7 @@ for species in spec_file:
     
 if spec_file["all"] > 0:
         
-    updateImage(senseboxId,image, token)
+    updateImage(senseboxId,image, token, update)
     
     
 save_obj({"all" : 0}, "species")
