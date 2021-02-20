@@ -5,7 +5,15 @@ import yaml
 import os
 from datetime import datetime
 
-# login to sensebox
+# links: 
+# sensebox forum: https://forum.sensebox.de/
+# opensensemap: https://opensensemap.org/ 
+# api documentation: https://docs.opensensemap.org/ 
+
+# hint: If you want to try out new request, reproduce them on opensensemap and look in the browser console/ network analysis
+
+
+# Function to login on opensensemap
 # Needed for connection to accounts and for requests like post sensebox or update sensebox 
 # Needed for requests like send sensor value  only if authentification needed is true 
 def login(email, password):
@@ -22,17 +30,10 @@ def login(email, password):
     return(jwtToken)
 
 
-# links: 
-# sensebox forum: https://forum.sensebox.de/
-# opensensemap: https://opensensemap.org/ 
-# api documentation: https://docs.opensensemap.org/ 
-
-# hint: If you want to try out new request, reproduce them on opensensemap and look in the browser console/ network analysis
-
-# initialize variables 
-def updateSensor(sensorId, senseboxId, value,jwtToken):
 
 
+# Function to update a sensor of a sensebox with a new value 
+def updateSensor(sensorId, senseboxId, value ,jwtToken):
 
     headersSendSensorValue = {'content-type': 'application/json',
                'Authorization': 'Bearer ' + jwtToken}
@@ -47,8 +48,7 @@ def updateSensor(sensorId, senseboxId, value,jwtToken):
 
 
 
-
-# update the sensebox with a picture
+# Function to update a sensebox with a new image 
 def updateImage(senseboxId, image, jwtToken, update):
     headersUpdateSensebox={'content-type': 'application/json',
                'Authorization': 'Bearer ' + jwtToken}
@@ -70,11 +70,11 @@ def updateImage(senseboxId, image, jwtToken, update):
     print(requestUpdateSensebox.text)
 
 
+
+
+# Function to create a new sensebox
 def createSensebox(email, password, lat, lng):
     
-    # login to sensebox
-    # Needed for connection to accounts and for requests like post sensebox or update sensebox 
-    # Needed for requests like send sensor value  only if authentification needed is true 
     headersLoginSensebox = {'content-type': 'application/json'}
 
     urlLogin = 'https://api.opensensemap.org/users/sign-in'
@@ -117,8 +117,11 @@ def createSensebox(email, password, lat, lng):
         
         with open("config.yaml", "w") as stream:
             yaml.dump(yamlData, stream)
-            
-            
+
+
+
+
+# Function to create a new sensor for a sensebox          
 def createSensor(species, senseboxId, jwtToken):  
 
     sensorName = "Number of Counted Birds – " + species
@@ -151,6 +154,9 @@ def createSensor(species, senseboxId, jwtToken):
             
     print(sensorId)
     return(sensorId)
+
+
+
 
 # further code not needed at the moment: 
 
