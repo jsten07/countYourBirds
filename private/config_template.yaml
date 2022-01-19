@@ -12,7 +12,7 @@ email:
   wanted: true #wether general e-mails are wanted, which are sended at the end of a bird event [true, false]
   liveUpdate: true #wether the user wanted an e-mails are wanted at the begin of a bird event [true, false]
 folderPath: /home/pi/countYourBirds
-environmentPath: /home/pi/countYourBirds/birds-env
+environmentPath: /home/pi/countYourBirds/bird-env
 sensebox:
   account: 
     email: #email of your sensebox account

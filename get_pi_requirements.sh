@@ -29,3 +29,5 @@ fi
 pip3 install pyyaml
 
 pip3 install python-crontab
+
+pip3 install requests

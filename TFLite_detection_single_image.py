@@ -173,7 +173,7 @@ fl = file.readline()
 liveUpdate = yamlData["email"]["liveUpdate"]
 
 
-if(fl == "false" and liveUpdate==true):
+if(fl == "false" and liveUpdate==True):
 # Loop over every image and perform detection
     for image_path in images:
 

@@ -52,7 +52,7 @@ def updateSensor(sensorId, senseboxId, value ,jwtToken):
 def updateImage(senseboxId, image, jwtToken, update):
     headersUpdateSensebox={'content-type': 'application/json',
                'Authorization': 'Bearer ' + jwtToken}
-       description = 'Raspberry Pi automatically recognizing birds. Every ' + str(update) + ' h the above-shown collage and the sensors (birds in total and separated by species with the Latin name) are updated with the recognized birds in the last ' + str(update) + ' h. Further information can be found here:'
+    description = 'Raspberry Pi automatically recognizing birds. Every ' + str(update) + ' h the above-shown collage and the sensors (birds in total and separated by species with the Latin name) are updated with the recognized birds in the last ' + str(update) + ' h. Further information can be found here:'
 
     weblink = 'https://github.com/jsten07/countYourBirds'
 
