@@ -35,7 +35,7 @@ update = yamlData["sensebox"]["updateeveryhour"]
 email = yamlData["sensebox"]["account"]["email"]
 password = yamlData["sensebox"]["account"]["password"]
 senseboxId =  yamlData["sensebox"]["id"]
-sensorId = yamlData["sensebox"]["sensors"]["all"]
+# sensorId = yamlData["sensebox"]["sensors"]["all"]
 
 PATH_TO_IMAGES = os.path.join(path,"imagesLastHour")
 images = glob.glob(PATH_TO_IMAGES + '/*')
