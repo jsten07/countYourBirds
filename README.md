@@ -9,5 +9,5 @@ Instructions and all other information can be found in the [wiki](https://github
 
 This software was developed as part of the study project "Image Recognition for Citizen Science" in the winterterm 2020/21 at [ifgi](https://www.uni-muenster.de/Geoinformatics/en/index.html) at the [University of Münster](https://www.uni-muenster.de/en/). 
 
-
+The application was advanced in the [Birdiary](https://github.com/Birdiary) project, that shows collected data at the website [www.wiediversistmeingarten.org](https://wiediversistmeingarten.org/view/).
 
